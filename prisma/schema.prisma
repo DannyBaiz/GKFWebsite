@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  role         Role     @default(MEMBER)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  FileAsset    FileAsset[] @relation("uploadedBy")
+}
+
+model NewsPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  title     String
+  location  String?
+  startsAt  DateTime
+  endsAt    DateTime?
+  description String?
+}
+
+model FileAsset {
+  id              String   @id @default(cuid())
+  originalName    String
+  storedName      String   @unique
+  mimeType        String
+  size            Int
+  uploadedByUser  User?    @relation("uploadedBy", fields: [uploadedByUserId], references: [id])
+  uploadedByUserId String?
+  createdAt       DateTime @default(now())
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  BOARD
+  MEMBER
+}
